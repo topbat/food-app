@@ -1,0 +1,17 @@
+# 用户与画像服务 通用配置（默认激活 dev）
+spring:
+  application:
+    name: user-service
+  profiles:
+    active: dev
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+
+server:
+  port: 8081
+  servlet:
+    encoding:
+      # 强制响应头携带 charset=UTF-8，避免 PowerShell 等客户端中文乱码
+      charset: UTF-8
+      force: true

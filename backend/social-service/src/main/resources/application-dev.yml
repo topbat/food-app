@@ -1,0 +1,20 @@
+# dev 环境：H2 内存数据库（MySQL 兼容模式），零外部依赖即可启动
+# defer-datasource-initialization + sql.init.mode=always：JPA 建表后再执行 data.sql 灌入徽章字典
+spring:
+  datasource:
+    url: jdbc:h2:mem:socialdb;MODE=MySQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
+      encoding: UTF-8
+  h2:
+    console:
+      enabled: true

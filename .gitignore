@@ -1,0 +1,31 @@
+# ===== Java / Maven =====
+target/
+*.class
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+
+# ===== 日志 =====
+logs/
+*.log
+
+# ===== H2 本地数据库文件 =====
+*.mv.db
+*.trace.db
+
+# ===== 前端 =====
+node_modules/
+dist/
+.vite/
+
+# ===== Python (ai-service) =====
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# ===== IDE / 系统 =====
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db

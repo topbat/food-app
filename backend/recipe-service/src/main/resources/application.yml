@@ -1,0 +1,19 @@
+# 菜谱结构化服务 公共配置（默认激活 dev）
+server:
+  port: 8082
+  servlet:
+    encoding:
+      # 强制响应头携带 charset=UTF-8，避免 PowerShell 等客户端中文乱码
+      charset: UTF-8
+      force: true
+
+spring:
+  application:
+    name: recipe-service
+  profiles:
+    active: dev
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+    serialization:
+      write-dates-as-timestamps: false
