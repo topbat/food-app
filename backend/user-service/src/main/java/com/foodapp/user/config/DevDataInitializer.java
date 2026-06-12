@@ -18,11 +18,22 @@ import java.math.BigDecimal;
 /**
  * dev 环境种子数据初始化器。
  * 启动时若演示账号不存在，则创建 demo/123456 演示用户及配套健康档案与两个画像标签，
- * 便于联调与演示时零配置直接登录。仅在 dev 环境生效。
+ * 并创建 6 个社区演示用户（ID 2-7，密码同为 123456），与 social-service 种子帖子的
+ * user_id 一一对应，保证社区列表能展示真实昵称与头像。仅在 dev 环境生效。
  */
 @Component
 @Profile("dev")
 public class DevDataInitializer implements CommandLineRunner {
+
+    /** 社区演示用户：用户名 / 昵称 / 头像（前端静态资源） */
+    private static final String[][] COMMUNITY_USERS = {
+            {"chenpopo",  "陈皮婆婆",   "/images/avatars/u2.svg"},
+            {"latiaoxiong", "辣条熊",   "/images/avatars/u3.svg"},
+            {"qingcai",   "青菜不青",   "/images/avatars/u4.svg"},
+            {"feixia",    "翻锅飞侠",   "/images/avatars/u5.svg"},
+            {"tangyuaner", "汤圆儿",    "/images/avatars/u6.svg"},
+            {"laowangshu", "隔壁老王叔", "/images/avatars/u7.svg"},
+    };
 
     private static final Logger log = LoggerFactory.getLogger(DevDataInitializer.class);
 
@@ -66,6 +77,7 @@ public class DevDataInitializer implements CommandLineRunner {
         account.setUsername("demo");
         account.setPassword(passwordEncoder.encode("123456"));
         account.setNickname("美食家小研");
+        account.setAvatarUrl("/images/avatars/u1.svg");
         accountRepository.save(account);
 
         UserHealthProfile profile = new UserHealthProfile();
@@ -90,5 +102,17 @@ public class DevDataInitializer implements CommandLineRunner {
         tagRepository.save(stateTag);
 
         log.info("[种子数据] 演示账号已创建: username=demo, userId={}, 档案与标签已就绪", account.getId());
+
+        // 社区演示用户：按声明顺序依次创建，自增ID依次为 2-7，
+        // 与 social-service data.sql 中帖子/评论的 user_id 对应
+        for (String[] u : COMMUNITY_USERS) {
+            UserAccount communityUser = new UserAccount();
+            communityUser.setUsername(u[0]);
+            communityUser.setPassword(passwordEncoder.encode("123456"));
+            communityUser.setNickname(u[1]);
+            communityUser.setAvatarUrl(u[2]);
+            accountRepository.save(communityUser);
+            log.info("[种子数据] 社区演示用户已创建: username={}, userId={}", u[0], communityUser.getId());
+        }
     }
 }
