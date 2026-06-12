@@ -101,6 +101,17 @@ Get-ChildItem d:\self\food-app\sql\*.sql | Sort-Object Name | ForEach-Object { m
 > 前置：JDK 21、Maven 3.9+、Python 3.10+、Node.js 18+。dev 环境无需安装 MySQL。
 > 每个服务开一个独立终端窗口。
 
+**一键启动（dev 环境，免装 MySQL）**
+
+```powershell
+cd d:\self\food-app\backend
+mvn -N install; mvn -pl common install -DskipTests   # 首次必须
+mvn -pl recipe-service spring-boot:run                # 先启菜谱（其他服务依赖它）
+# 新窗口依次: user/kitchen/search/social-service
+cd backend\ai-service; python -m pip install -r requirements.txt; python -m uvicorn main:app --port 8086
+cd frontend; npm install; npm run dev                 # http://localhost:5173
+```
+
 **推荐：一键启动脚本（自动处理中文乱码）**
 
 ```powershell
@@ -164,8 +175,13 @@ Invoke-RestMethod http://localhost:8086/api/ai/health                   # AI
 | AI 服务 | [backend/ai-service/测试指南.md](backend/ai-service/测试指南.md) |
 | 端到端联调 | [联调测试指南.md](联调测试指南.md) |
 
-## 八、其他文档
+## 八、提交规范
 
+> **每一次 git 提交，必须同步在 [CHANGELOG.md](CHANGELOG.md) 最上方追加一条变更记录**（日期、标题、变更类型、影响模块），未附带变更记录的提交视为不合规提交。
+
+## 九、其他文档
+
+- [CHANGELOG.md](CHANGELOG.md) — 变更历史（每次提交必更新）
 - [接口契约.md](接口契约.md) — 全部接口请求/响应定义
 - [项目总体规划.md](项目总体规划.md) — 架构、端口、统一技术约定
 - [产品需求.md](产品需求.md) — 产品功能需求
