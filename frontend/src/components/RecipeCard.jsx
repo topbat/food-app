@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import TagChip from './TagChip';
-import { DIFFICULTY, PLACEHOLDER_IMG } from '../utils/constants';
+import SmartImage from './SmartImage';
+import { DIFFICULTY } from '../utils/constants';
 
 /**
  * 菜谱卡片：封面图 + 衬线标题 + kcal 徽标 + 难度/耗时 + 标签 chips
@@ -14,21 +15,14 @@ export default function RecipeCard({ recipe, reason = '' }) {
       className="card overflow-hidden block transition md:hover:-translate-y-1 md:hover:shadow-lift active:scale-[0.98] animate-fade-up"
     >
       <div className="relative">
-        <img
-          src={recipe.coverUrl || PLACEHOLDER_IMG}
-          alt={recipe.title}
-          loading="lazy"
-          onError={(e) => {
-            e.currentTarget.src = PLACEHOLDER_IMG;
-          }}
-          className="w-full h-32 md:h-40 object-cover bg-ink/5"
-        />
+        {/* 列表场景用缩略图（_thumb.jpg），失败自动回退原图/占位图 */}
+        <SmartImage src={recipe.coverUrl} alt={recipe.title} className="w-full h-32 md:h-40 object-cover" />
         {/* kcal 印章徽标 */}
         <span className="seal-badge absolute top-2 right-2 px-2 py-0.5 text-xs">
           {recipe.caloriesKcal ?? '--'} kcal
         </span>
         {recipe.cuisineName ? (
-          <span className="absolute bottom-2 left-2 bg-ink/60 text-white text-[10px] px-2 py-0.5 rounded-md backdrop-blur-sm">
+          <span className="absolute bottom-2 left-2 bg-scrim/60 text-white text-[10px] px-2 py-0.5 rounded-md backdrop-blur-sm">
             {recipe.cuisineName}
           </span>
         ) : null}

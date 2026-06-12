@@ -570,7 +570,7 @@ export default function Cooking() {
       {/* ===== 语音降级：文本指令输入弹层 ===== */}
       {voiceInputOpen && (
         <div
-          className="fixed inset-0 z-50 bg-ink/50 flex items-end md:items-center justify-center"
+          className="fixed inset-0 z-50 bg-scrim/50 flex items-end md:items-center justify-center"
           onClick={() => setVoiceInputOpen(false)}
         >
           <div
@@ -605,7 +605,7 @@ export default function Cooking() {
 
       {/* ===== 防误触锁定遮罩：长按 2 秒解锁 ===== */}
       {locked && (
-        <div className="fixed inset-0 z-[60] bg-ink/70 backdrop-blur-sm flex flex-col items-center justify-center gap-6 touch-none">
+        <div className="fixed inset-0 z-[60] bg-scrim/80 backdrop-blur-sm flex flex-col items-center justify-center gap-6 touch-none">
           <p className="text-white/80 font-serif text-lg tracking-widest">屏幕已锁定 · 防误触</p>
           <button
             onPointerDown={startUnlockPress}
@@ -636,7 +636,7 @@ export default function Cooking() {
 
       {/* ===== 完成成就卡片浮层 ===== */}
       {completed && (
-        <div className="fixed inset-0 z-[70] bg-ink/60 backdrop-blur-sm flex items-center justify-center px-6">
+        <div className="fixed inset-0 z-[70] bg-scrim/60 backdrop-blur-sm flex items-center justify-center px-6">
           <div className="bg-card w-full max-w-sm rounded-3xl p-7 text-center space-y-4 animate-pop">
             <span className="seal-badge w-16 h-16 text-3xl mx-auto animate-pop">🏆</span>
             <h2 className="font-serif text-2xl font-bold">出锅啦！</h2>

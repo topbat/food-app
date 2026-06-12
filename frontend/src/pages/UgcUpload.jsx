@@ -1,11 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { uploadUgcRecipe, getIngredientList, getTagList } from '../api/recipe';
+import { isVideoUrl } from '../api/file';
 import TagChip from '../components/TagChip';
+import SmartImage from '../components/SmartImage';
+import UploadButton from '../components/UploadButton';
 import { Spinner } from '../components/Loading';
 import useAuthStore from '../store/useAuthStore';
 import { toast } from '../store/useToastStore';
-import { CUISINES, DIFFICULTY, PHASES, FIRE_POWER, PLACEHOLDER_IMG } from '../utils/constants';
+import { CUISINES, DIFFICULTY, PHASES, FIRE_POWER } from '../utils/constants';
+
+/** 步骤媒体可上传类型：图片 + mp4/mov 视频 */
+const STEP_MEDIA_ACCEPT = 'image/jpeg,image/png,image/webp,image/gif,video/mp4,video/quicktime';
 
 /** 向导步骤条配置 */
 const WIZARD_STEPS = ['基本信息', '食材清单', '五阶段步骤', '人群标签', '预览提交'];
@@ -285,17 +291,20 @@ export default function UgcUpload() {
             />
           </label>
           <label className="block">
-            <span className="text-[11px] text-mute">封面图片链接</span>
+            <span className="text-[11px] text-mute">封面图</span>
             <div className="flex gap-2 mt-1 items-center">
-              <img
-                src={basic.coverUrl.trim() || PLACEHOLDER_IMG}
-                onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMG)}
-                alt=""
-                className="w-12 h-12 rounded-xl object-cover bg-ink/5 shrink-0"
-              />
+              <SmartImage src={basic.coverUrl.trim()} className="w-12 h-12 rounded-xl object-cover shrink-0" />
+              {/* 主入口：本地上传封面（bizType=recipe，带进度）；右侧 URL 输入兜底 */}
+              <UploadButton
+                bizType="recipe"
+                onUploaded={(data) => setBasic((b) => ({ ...b, coverUrl: data.url }))}
+                className="shrink-0 px-3 py-2.5 rounded-xl text-xs border border-dashed border-ink/15 text-mute hover:border-cinnabar/50 hover:text-cinnabar transition active:scale-95 disabled:opacity-60"
+              >
+                📷 本地上传
+              </UploadButton>
               <input
                 className="input-base flex-1"
-                placeholder="https://…"
+                placeholder="或粘贴 https://… 图片链接"
                 value={basic.coverUrl}
                 onChange={(e) => setBasic((b) => ({ ...b, coverUrl: e.target.value }))}
               />
@@ -514,12 +523,32 @@ export default function UgcUpload() {
                     value={st.detail}
                     onChange={(e) => setStepField(ph.key, i, 'detail', e.target.value)}
                   />
-                  <input
-                    className="input-base"
-                    placeholder="图片/视频链接（可选）"
-                    value={st.mediaUrl}
-                    onChange={(e) => setStepField(ph.key, i, 'mediaUrl', e.target.value)}
-                  />
+                  {/* 步骤媒体：本地上传图片/视频为主入口，URL 输入兜底 */}
+                  <div className="flex items-center gap-2">
+                    {st.mediaUrl.trim() && (
+                      // 预览：视频显示首帧缩略图（_thumb.jpg），图片走缩略图回退链
+                      <SmartImage
+                        src={st.mediaUrl.trim()}
+                        thumb
+                        className="w-10 h-10 rounded-lg object-cover shrink-0"
+                        title={isVideoUrl(st.mediaUrl) ? '视频首帧预览' : '图片预览'}
+                      />
+                    )}
+                    <UploadButton
+                      bizType="step"
+                      accept={STEP_MEDIA_ACCEPT}
+                      onUploaded={(data) => setStepField(ph.key, i, 'mediaUrl', data.url)}
+                      className="shrink-0 px-2.5 py-2.5 rounded-xl text-[11px] border border-dashed border-ink/15 text-mute hover:border-cinnabar/50 hover:text-cinnabar transition active:scale-95 disabled:opacity-60"
+                    >
+                      📷 图片/视频
+                    </UploadButton>
+                    <input
+                      className="input-base flex-1"
+                      placeholder="或粘贴媒体链接（可选）"
+                      value={st.mediaUrl}
+                      onChange={(e) => setStepField(ph.key, i, 'mediaUrl', e.target.value)}
+                    />
+                  </div>
                   {/* COOK 阶段专属：倒计时秒数 + 火候 */}
                   {ph.key === 'COOK' && (
                     <div className="flex items-center gap-2">
@@ -587,12 +616,8 @@ export default function UgcUpload() {
       {wizard === 4 && (
         <section className="space-y-4 animate-fade-up">
           <div className="card overflow-hidden">
-            <img
-              src={basic.coverUrl.trim() || PLACEHOLDER_IMG}
-              onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMG)}
-              alt=""
-              className="w-full h-44 object-cover bg-ink/5"
-            />
+            {/* 预览大图用原图 */}
+            <SmartImage src={basic.coverUrl.trim()} thumb={false} className="w-full h-44 object-cover" />
             <div className="p-4 space-y-3">
               <div className="flex items-start justify-between gap-2">
                 <h2 className="font-serif text-xl font-bold">{basic.title || '未命名菜谱'}</h2>

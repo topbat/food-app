@@ -11,6 +11,7 @@ const services = {
   search: 8084, // 智能搜索推荐服务
   social: 8085, // 社交与UGC服务
   ai: 8086, // AI 服务
+  file: 8087, // 文件/对象存储服务
 };
 
 const proxy = {};

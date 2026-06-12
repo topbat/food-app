@@ -2,10 +2,58 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ===== 色彩 token：CSS 变量（空格分隔的 RGB 三元组，供 tailwind rgb(var(--xx) / <alpha>) 引用） ===== */
+:root {
+  /* —— 亮色：宣纸米白底 + 朱砂主色 + 黛绿辅助 + 墨色文字 + 金棕点缀 —— */
+  --c-paper: 247 243 235; /* 宣纸 #F7F3EB */
+  --c-card: 255 253 248; /* 卡片白 #FFFDF8 */
+  --c-cinnabar: 181 57 47; /* 朱砂 #B5392F */
+  --c-cinnabar-deep: 156 47 38; /* 朱砂·深 #9C2F26 */
+  --c-cinnabar-soft: 201 84 74; /* 朱砂·浅 #C9544A */
+  --c-warmth: 217 110 72; /* 暖橙 #D96E48 */
+  --c-jade: 47 93 80; /* 黛绿 #2F5D50 */
+  --c-ochre: 154 106 79; /* 赭石 #9A6A4F */
+  --c-gold: 169 132 69; /* 金棕/琥珀 #A98445 */
+  --c-ink: 43 43 43; /* 墨色 #2B2B2B */
+  --c-mute: 138 131 120; /* 次要文字 #8A8378 */
+  --c-scrim: 26 23 20; /* 遮罩/图片角标专用暗色（亮暗模式保持一致） */
+
+  /* 阴影 */
+  --shadow-soft: 0 2px 12px rgb(43 43 43 / 0.06);
+  --shadow-lift: 0 10px 28px rgb(43 43 43 / 0.12);
+  --shadow-seal: 0 2px 8px rgb(var(--c-cinnabar) / 0.35);
+
+  color-scheme: light; /* 原生控件（滚动条/输入框）跟随主题 */
+}
+
+/* —— 暗色：暖墨黑底 + 沉朱砂 + 青玉 + 宣纸白文字（挂在 html.dark 上） —— */
+.dark {
+  --c-paper: 23 21 19; /* 暖墨黑 #171513（非纯黑，带暖调） */
+  --c-card: 34 31 28; /* 卡片深暖灰 #221F1C（比底色高一阶） */
+  --c-cinnabar: 192 90 78; /* 沉朱砂 #C05A4E（降饱和降亮度，避免刺眼） */
+  --c-cinnabar-deep: 168 74 64; /* 沉朱砂·深 #A84A40 */
+  --c-cinnabar-soft: 210 122 110; /* 沉朱砂·浅 #D27A6E */
+  --c-warmth: 201 123 85; /* 沉琥珀橙 #C97B55 */
+  --c-jade: 122 168 152; /* 低饱和青玉 #7AA898 */
+  --c-ochre: 184 142 110; /* 浅赭 #B88E6E */
+  --c-gold: 201 163 94; /* 暗夜琥珀金 #C9A35E */
+  --c-ink: 232 226 214; /* 宣纸白（暖调浅灰白）#E8E2D6 */
+  --c-mute: 153 146 136; /* 次要文字 #999288 */
+  --c-scrim: 10 9 8; /* 暗色下遮罩更深一些 */
+
+  /* 暗色阴影：soft 用描边替代，lift 降低存在感 */
+  --shadow-soft: 0 0 0 1px rgb(255 255 255 / 0.06);
+  --shadow-lift: 0 10px 28px rgb(0 0 0 / 0.55), 0 0 0 1px rgb(255 255 255 / 0.05);
+  --shadow-seal: 0 2px 10px rgb(var(--c-cinnabar) / 0.22);
+
+  color-scheme: dark;
+}
+
 /* ===== 全局基础样式：新中式宣纸底 ===== */
 @layer base {
   html {
     -webkit-tap-highlight-color: transparent;
+    @apply bg-paper; /* 根节点也铺底色，避免弹性滚动露白 */
   }
   body {
     @apply bg-paper text-ink antialiased;
@@ -16,6 +64,21 @@
   textarea,
   select {
     @apply outline-none;
+  }
+  /* 占位符颜色统一走 token（含暗色适配） */
+  ::placeholder {
+    @apply text-mute/70;
+  }
+  /* 细滚动条：颜色随主题 */
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  *::-webkit-scrollbar-thumb {
+    @apply bg-ink/20 rounded-full;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
   }
 }
 

@@ -26,6 +26,7 @@
         <module>kitchen-service</module>
         <module>search-service</module>
         <module>social-service</module>
+        <module>file-service</module>
     </modules>
 
     <properties>

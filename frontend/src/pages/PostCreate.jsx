@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { createPost, checkin } from '../api/social';
+import SmartImage from '../components/SmartImage';
+import UploadButton from '../components/UploadButton';
 import useAuthStore from '../store/useAuthStore';
 import { toast } from '../store/useToastStore';
-import { POST_TYPES, PLACEHOLDER_IMG } from '../utils/constants';
+import { POST_TYPES } from '../utils/constants';
 
 /**
  * 发帖打卡页（需登录）：
@@ -42,6 +44,14 @@ export default function PostCreate() {
   /** 删除第 i 个图片输入（至少保留一个） */
   const removeImageAt = (i) =>
     setImages((arr) => (arr.length <= 1 ? [''] : arr.filter((_, idx) => idx !== i)));
+
+  /** 本地上传成功：优先填入空输入框，否则追加一行 */
+  const appendUploadedImage = (data) =>
+    setImages((arr) => {
+      const emptyIdx = arr.findIndex((u) => !u.trim());
+      if (emptyIdx >= 0) return arr.map((u, i) => (i === emptyIdx ? data.url : u));
+      return [...arr, data.url];
+    });
 
   /** 提交：先发帖，成功后再打卡（关键交互：打卡返回连续天数与新徽章） */
   const handleSubmit = async () => {
@@ -117,26 +127,30 @@ export default function PostCreate() {
         <p className="text-right text-[10px] text-mute">{content.length}/500</p>
       </div>
 
-      {/* 图片 URL 列表（每个输入框带预览缩略图） */}
+      {/* 配图：本地上传为主入口，URL 输入兜底（每行带预览缩略图） */}
       <section className="card p-4 space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="font-serif text-sm font-semibold">配图（图片链接）</h2>
+          <h2 className="font-serif text-sm font-semibold">配图</h2>
           <button
-            className="seal-badge px-2.5 py-1 text-xs active:scale-95"
+            className="text-xs text-mute underline underline-offset-2 active:scale-95"
             onClick={() => setImages((arr) => [...arr, ''])}
           >
-            ＋ 加一张
+            ＋ 加一条链接
           </button>
         </div>
+        {/* 主入口：本地选择多张图片上传（带进度），成功后自动填入下方列表 */}
+        <UploadButton
+          bizType="post"
+          multiple
+          onUploaded={appendUploadedImage}
+          className="w-full py-3 rounded-2xl border-2 border-dashed border-ink/15 text-sm text-mute hover:border-cinnabar/50 hover:text-cinnabar transition active:scale-[0.99] disabled:opacity-60"
+        >
+          📷 本地上传图片（可多选，jpg/png/webp/gif ≤10MB）
+        </UploadButton>
         {images.map((url, i) => (
           <div key={i} className="flex items-center gap-2">
-            {/* 预览缩略图 */}
-            <img
-              src={url.trim() || PLACEHOLDER_IMG}
-              onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMG)}
-              alt=""
-              className="w-12 h-12 rounded-xl object-cover bg-ink/5 shrink-0"
-            />
+            {/* 预览缩略图（优先 _thumb.jpg，失败回退原图） */}
+            <SmartImage src={url.trim()} className="w-12 h-12 rounded-xl object-cover shrink-0" />
             <input
               className="input-base flex-1"
               placeholder="https://… 图片地址"
@@ -180,7 +194,7 @@ export default function PostCreate() {
 
       {/* ===== 打卡成功浮层：连续天数 + 新徽章动效 ===== */}
       {checkinResult && (
-        <div className="fixed inset-0 z-50 bg-ink/60 backdrop-blur-sm flex items-center justify-center px-6">
+        <div className="fixed inset-0 z-50 bg-scrim/60 backdrop-blur-sm flex items-center justify-center px-6">
           <div className="bg-card w-full max-w-sm rounded-3xl p-7 text-center space-y-4 animate-pop">
             <span className="seal-badge w-16 h-16 text-3xl mx-auto animate-pop">🔥</span>
             <h2 className="font-serif text-2xl font-bold">打卡成功！</h2>

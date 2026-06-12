@@ -1,7 +1,7 @@
 ﻿# ============================================================
 # 菜谱助手后端 dev 环境一键启动脚本（解决 PowerShell 中文乱码）
 # 用法：
-#   .\start-dev.ps1                       # 启动全部 5 个 Java 服务
+#   .\start-dev.ps1                       # 启动全部 6 个 Java 服务
 #   .\start-dev.ps1 user-service          # 只启动指定服务（可多个）
 # 说明：
 #   每个服务在独立 PowerShell 窗口中启动，并先执行 chcp 65001
@@ -9,7 +9,7 @@
 #   从而正确显示中文日志。
 # ============================================================
 param(
-    [string[]]$Services = @('recipe-service', 'user-service', 'kitchen-service', 'search-service', 'social-service')
+    [string[]]$Services = @('recipe-service', 'user-service', 'kitchen-service', 'search-service', 'social-service', 'file-service')
 )
 
 $backend = $PSScriptRoot
@@ -36,6 +36,7 @@ foreach ($s in $Services) {
 }
 
 Write-Host ""
-Write-Host "全部启动命令已发出。端口：菜谱8082 用户8081 厨房8083 搜索8084 社交8085" -ForegroundColor Yellow
+Write-Host "全部启动命令已发出。端口：菜谱8082 用户8081 厨房8083 搜索8084 社交8085 文件8087" -ForegroundColor Yellow
+Write-Host "文件服务上传依赖 MinIO（:9000，未启动时仅上传接口报 50000，不影响服务本身启动）" -ForegroundColor Yellow
 Write-Host "AI 服务请另开窗口： cd ai-service; python -m uvicorn main:app --port 8086" -ForegroundColor Yellow
 Write-Host "前端：             cd ..\frontend; npm run dev   （http://localhost:5173）" -ForegroundColor Yellow

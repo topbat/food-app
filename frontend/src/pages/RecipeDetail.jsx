@@ -5,11 +5,12 @@ import { getRating, rateRecipe, getCommentList, addComment } from '../api/social
 import { createSession } from '../api/kitchen';
 import CalorieRing from '../components/CalorieRing';
 import TagChip from '../components/TagChip';
+import SmartImage from '../components/SmartImage';
 import Empty from '../components/Empty';
 import { PageLoading, Spinner } from '../components/Loading';
 import useAuthStore from '../store/useAuthStore';
 import { toast } from '../store/useToastStore';
-import { DIFFICULTY, PHASES, SUBSTITUTE_SCENES, PLACEHOLDER_IMG } from '../utils/constants';
+import { DIFFICULTY, PHASES, SUBSTITUTE_SCENES } from '../utils/constants';
 
 /** 数字滚动动效：从 0 滚到目标值 */
 function NumberTicker({ value, duration = 900, className = '' }) {
@@ -71,7 +72,7 @@ function Stars({ score = 0, onRate, size = 'text-base' }) {
           disabled={!onRate}
           onClick={() => onRate && onRate(i)}
           className={`${onRate ? 'active:scale-110 transition cursor-pointer' : 'cursor-default'} ${
-            i <= Math.round(score) ? 'text-warmth' : 'text-ink/15'
+            i <= Math.round(score) ? 'text-gold' : 'text-ink/15' // 金棕琥珀星星点缀
           }`}
         >
           ★
@@ -197,15 +198,16 @@ export default function RecipeDetail() {
     <div className="max-w-5xl mx-auto pb-28">
       {/* 封面大图 */}
       <div className="relative">
-        <img
-          src={info.coverUrl || PLACEHOLDER_IMG}
+        {/* 详情大图直接看原图 */}
+        <SmartImage
+          src={info.coverUrl}
+          thumb={false}
           alt={info.title}
-          onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMG)}
-          className="w-full h-56 md:h-80 object-cover md:rounded-b-2xl bg-ink/5"
+          className="w-full h-56 md:h-80 object-cover md:rounded-b-2xl"
         />
         <button
           onClick={() => navigate(-1)}
-          className="absolute top-3 left-3 w-9 h-9 rounded-full bg-ink/40 text-white backdrop-blur flex items-center justify-center active:scale-95"
+          className="absolute top-3 left-3 w-9 h-9 rounded-full bg-scrim/40 text-white backdrop-blur flex items-center justify-center active:scale-95"
           aria-label="返回"
         >
           ←
@@ -376,13 +378,8 @@ export default function RecipeDetail() {
             <ul className="space-y-3">
               {comments.list.map((c) => (
                 <li key={c.id} className="card p-3.5 flex gap-3">
-                  <img
-                    src={c.avatarUrl || PLACEHOLDER_IMG}
-                    onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMG)}
-                    alt=""
-                    loading="lazy"
-                    className="w-9 h-9 rounded-full object-cover bg-ink/5 shrink-0"
-                  />
+                  {/* 评论头像：小图走缩略图 */}
+                  <SmartImage src={c.avatarUrl} className="w-9 h-9 rounded-full object-cover shrink-0" />
                   <div className="min-w-0">
                     <p className="text-xs text-mute">
                       {c.nickname || '食客'} · {(c.createdAt || '').slice(0, 10)}
@@ -418,7 +415,7 @@ export default function RecipeDetail() {
 
       {/* ===== 防误触确认弹层 ===== */}
       {confirmOpen && (
-        <div className="fixed inset-0 z-50 bg-ink/50 flex items-end md:items-center justify-center" onClick={() => setConfirmOpen(false)}>
+        <div className="fixed inset-0 z-50 bg-scrim/50 flex items-end md:items-center justify-center" onClick={() => setConfirmOpen(false)}>
           <div
             className="bg-card w-full md:max-w-sm rounded-t-3xl md:rounded-3xl p-6 pb-safe animate-slide-up md:animate-pop"
             onClick={(e) => e.stopPropagation()}
@@ -443,7 +440,7 @@ export default function RecipeDetail() {
 
       {/* ===== 智能替换底部弹层 ===== */}
       {subOpen && (
-        <div className="fixed inset-0 z-50 bg-ink/50 flex items-end md:items-center justify-center" onClick={() => setSubOpen(false)}>
+        <div className="fixed inset-0 z-50 bg-scrim/50 flex items-end md:items-center justify-center" onClick={() => setSubOpen(false)}>
           <div
             className="bg-card w-full md:max-w-md rounded-t-3xl md:rounded-3xl p-6 pb-safe max-h-[80vh] overflow-y-auto animate-slide-up md:animate-pop"
             onClick={(e) => e.stopPropagation()}

@@ -2,27 +2,20 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getPostList, toggleLike, getCommentList, addComment } from '../api/social';
 import Empty from '../components/Empty';
+import SmartImage from '../components/SmartImage';
 import { CardSkeleton, Spinner } from '../components/Loading';
 import useAuthStore from '../store/useAuthStore';
 import { toast } from '../store/useToastStore';
-import { POST_TYPES, PLACEHOLDER_IMG } from '../utils/constants';
+import { POST_TYPES } from '../utils/constants';
 
 const PAGE_SIZE = 10;
 // 与后端 social-service 约定：点赞 targetType=1 帖子；评论 targetType=2 帖子
 const LIKE_TARGET_POST = 1;
 const COMMENT_TARGET_POST = 2;
 
-/** 头像（加载失败回退占位图） */
+/** 头像（小图优先缩略图，加载失败逐级回退原图/占位图） */
 function Avatar({ src, size = 'w-8 h-8' }) {
-  return (
-    <img
-      src={src || PLACEHOLDER_IMG}
-      onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMG)}
-      alt=""
-      loading="lazy"
-      className={`${size} rounded-full object-cover bg-ink/5 shrink-0`}
-    />
-  );
+  return <SmartImage src={src} className={`${size} rounded-full object-cover shrink-0`} />;
 }
 
 /**
@@ -213,15 +206,10 @@ export default function Community() {
                 {/* 首图 */}
                 {post.imageUrls?.length > 0 && (
                   <div className="relative">
-                    <img
-                      src={post.imageUrls[0]}
-                      onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMG)}
-                      alt=""
-                      loading="lazy"
-                      className="w-full h-36 md:h-44 object-cover bg-ink/5"
-                    />
+                    {/* 作品墙卡片：用缩略图提速，失败回退原图 */}
+                    <SmartImage src={post.imageUrls[0]} className="w-full h-36 md:h-44 object-cover" />
                     {post.imageUrls.length > 1 && (
-                      <span className="absolute top-2 right-2 bg-ink/60 text-white text-[10px] px-1.5 py-0.5 rounded-md">
+                      <span className="absolute top-2 right-2 bg-scrim/60 text-white text-[10px] px-1.5 py-0.5 rounded-md">
                         🖼 {post.imageUrls.length}
                       </span>
                     )}
@@ -279,7 +267,7 @@ export default function Community() {
       {/* ===== 帖子详情浮层：全部图片 + 评论 ===== */}
       {active && (
         <div
-          className="fixed inset-0 z-50 bg-ink/50 flex items-end md:items-center justify-center"
+          className="fixed inset-0 z-50 bg-scrim/50 flex items-end md:items-center justify-center"
           onClick={() => setActive(null)}
         >
           <div
@@ -307,16 +295,9 @@ export default function Community() {
             <div className="px-5 py-4 space-y-4">
               {/* 正文 */}
               <p className="text-sm leading-relaxed whitespace-pre-wrap">{active.content}</p>
-              {/* 全部图片 */}
+              {/* 全部图片：详情浮层看原图（thumb=false） */}
               {active.imageUrls?.map((url, i) => (
-                <img
-                  key={i}
-                  src={url}
-                  onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMG)}
-                  alt=""
-                  loading="lazy"
-                  className="w-full rounded-2xl object-cover bg-ink/5"
-                />
+                <SmartImage key={i} src={url} thumb={false} className="w-full rounded-2xl object-cover" />
               ))}
               {/* 关联菜谱跳转 */}
               {active.recipeId && (

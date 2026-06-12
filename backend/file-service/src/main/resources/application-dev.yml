@@ -1,0 +1,26 @@
+# dev 环境：H2 内存数据库（MySQL 兼容模式）+ 本机 MinIO，零云端依赖即可启动
+# 注意：MinIO 未启动时服务也能正常起来，仅上传时返回 50000「对象存储服务不可用，请先启动 MinIO」
+spring:
+  datasource:
+    url: jdbc:h2:mem:filedb;MODE=MySQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  h2:
+    console:
+      enabled: true
+
+# 对象存储配置（默认 MinIO 本机实例：minioadmin/minioadmin，bucket=food-app，不存在自动创建并设公共读）
+# 如需切换阿里云 OSS：将 type 改为 aliyun，并补充 foodapp.storage.aliyun.* 配置（见 application-uat.yml 示例）
+foodapp:
+  storage:
+    type: minio
+    minio:
+      endpoint: http://localhost:9000
+      access-key: minioadmin
+      secret-key: minioadmin
+      bucket: food-app

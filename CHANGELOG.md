@@ -12,6 +12,16 @@
 
 ---
 
+## [2026-06-12] 对象存储文件服务与前端暗黑模式
+
+- 新增：文件存储服务 `file-service`（端口 **8087**，表前缀 `file_`）—— 对象存储策略模式（**MinIO 默认实现** / 阿里云 OSS 可配置切换，`foodapp.storage.type=minio|aliyun`），bucket 自动创建并设公共读；MinIO 未启动时服务可正常运行、上传返回友好 50000 提示
+- 新增：图片/视频上传统一接口 `POST /api/file/upload`（图片 jpg/png/webp/gif ≤10MB，视频 mp4/mov ≤100MB），上传同时自动生成 **400px 宽预览缩略图**（图片缩放 / 视频抓首帧），缩略图地址规则：原 URL 去扩展名 + `_thumb.jpg`，供首页/列表页小图显示提升加载性能
+- 新增：`sql/06_file.sql` 建表脚本、file-service 测试指南（含 MinIO 真实上传/缩略图实测记录）
+- 新增：前端**暗黑模式** —— 色彩 token 全面 CSS 变量化（`darkMode: 'class'`），主题三态切换（亮/暗/跟随系统，localStorage 持久化，防首屏闪白）；暗色采用暖墨黑底 + 沉朱砂 + 青玉 + 暗夜琥珀金，亮色新增金棕点缀提升文化质感
+- 新增：前端上传接入 —— 发帖多图本地上传（带进度）、UGC 封面与步骤图片/视频上传、个人头像上传；列表/网格统一使用 `SmartImage` 组件（缩略图优先 + 原图回退 + 懒加载）
+- 文档：接口契约新增文件服务一节；README / 项目总体规划 端口表与启动步骤（MinIO 两种启动方式）同步更新
+- 影响范围：file（新模块）、frontend、docs、sql
+
 ## [2026-06-12] 修复 PowerShell 脚本编码
 
 - 修复：`scripts/deploy.ps1`、`backend/start-dev.ps1` 增加 UTF-8 BOM —— Windows PowerShell 5.1 将无 BOM 的 UTF-8 脚本按 GBK 解析，中文注释会导致 ParserError

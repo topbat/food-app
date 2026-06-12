@@ -7,6 +7,26 @@
       content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no"
     />
     <meta name="theme-color" content="#F7F3EB" />
+    <!-- 首屏前同步主题：读 localStorage（zustand persist 结构）/系统偏好，先挂 .dark 类避免闪白 -->
+    <script>
+      (function () {
+        try {
+          var mode = 'system';
+          var raw = localStorage.getItem('food-app-theme');
+          if (raw) mode = (JSON.parse(raw).state || {}).mode || 'system';
+          var dark =
+            mode === 'dark' ||
+            (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          if (dark) {
+            document.documentElement.classList.add('dark');
+            var meta = document.querySelector('meta[name="theme-color"]');
+            if (meta) meta.setAttribute('content', '#171513');
+          }
+        } catch (e) {
+          /* 读取失败按亮色处理 */
+        }
+      })();
+    </script>
     <meta name="description" content="食研社 — 面向Z世代的精细化、可视化、健康化中式烹饪助手" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%23B5392F'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%23FFFDF8' font-family='serif'>食</text></svg>" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />

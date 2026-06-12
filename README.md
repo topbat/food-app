@@ -38,6 +38,7 @@
 | 智能搜索推荐服务 | `backend/search-service` | **8084** | `search_` | 多维检索（关键词/食材/营养/人群）、个性化推荐、热搜、搜索历史 |
 | 社交与 UGC 服务 | `backend/social-service` | **8085** | `social_` | 评论、作品墙、点赞、评分、打卡、成就徽章、分享卡 |
 | AI 服务（Python FastAPI） | `backend/ai-service` | **8086** | — | 智能食材替换建议（规则引擎）、菜谱自由文本五步法结构化解析 |
+| 文件存储服务 | `backend/file-service` | **8087** | `file_` | 对象存储上传（MinIO/阿里云OSS策略切换）、图片/视频缩略图生成、上传记录 |
 | 前端 H5/PC | `frontend` | **5173** | — | 移动优先 + PC 响应式，新中式美学视觉 |
 
 接口前缀约定：各服务统一为 `/api/<模块>`（如 `/api/user/**`、`/api/recipe/**`、`/api/ai/**`）。
@@ -65,6 +66,7 @@ food-app/
 │   ├── kitchen-service/        # 厨房服务 :8083
 │   ├── search-service/         # 搜索服务 :8084
 │   ├── social-service/         # 社交服务 :8085
+│   ├── file-service/           # 文件服务 :8087（MinIO/OSS 上传 + 缩略图）
 │   └── ai-service/             # AI 服务 :8086（Python FastAPI）
 │       ├── main.py             # 入口（接口 + 统一响应 + 全局异常）
 │       ├── config.py           # 多环境配置 + 日志初始化
@@ -74,7 +76,7 @@ food-app/
 │   └── src/{api,components,pages,store,utils}
 ├── sql/                        # MySQL 正式 DDL（uat/prod 用）
 │   ├── 00_database.sql         # 建库 food_app
-│   ├── 01_user.sql ~ 05_social.sql   # 按模块编号
+│   ├── 01_user.sql ~ 06_file.sql     # 按模块编号
 ├── 接口契约.md                  # 全部接口定义（开发必须遵守）
 ├── 项目总体规划.md               # 架构与统一约定
 ├── 产品需求.md / 前端后端技术栈.md
@@ -149,11 +151,29 @@ cd d:\self\food-app\backend\ai-service
 pip install -r requirements.txt
 python main.py
 
+# 4.5 文件服务 :8087（需要先启动 MinIO，见下方说明；MinIO 未启动时服务也能起，仅上传报 50000）
+cd d:\self\food-app\backend
+mvn -pl file-service spring-boot:run
+
 # 5. 前端 :5173
 cd d:\self\food-app\frontend
 npm install
 npm run dev
 ```
+
+**MinIO 启动（文件服务 :8087 的对象存储依赖，两种方式任选）**
+
+```powershell
+# 方式一：Docker（需本机 Docker）
+docker run -p 9000:9000 -p 9001:9001 minio/minio server /data --console-address ":9001"
+
+# 方式二：Windows 直接下载 minio.exe 运行（免 Docker）
+Invoke-WebRequest https://dl.min.io/server/minio/release/windows-amd64/minio.exe -OutFile minio.exe
+.\minio.exe server D:\minio-data --console-address ":9001"
+```
+
+> 默认账号密码均为 `minioadmin` / `minioadmin`；API 端口 9000，Web 控制台 http://localhost:9001 。
+> bucket `food-app` 无需手动创建，文件服务首次上传时会自动创建并设置公共读策略。
 
 启动验证（任一服务起来后均可单独验证）：
 
@@ -173,6 +193,7 @@ Invoke-RestMethod http://localhost:8086/api/ai/health                   # AI
 | 搜索服务 | [backend/search-service/测试指南.md](backend/search-service/测试指南.md) |
 | 社交服务 | [backend/social-service/测试指南.md](backend/social-service/测试指南.md) |
 | AI 服务 | [backend/ai-service/测试指南.md](backend/ai-service/测试指南.md) |
+| 文件服务 | [backend/file-service/测试指南.md](backend/file-service/测试指南.md) |
 | 端到端联调 | [联调测试指南.md](联调测试指南.md) |
 
 ## 八、提交规范

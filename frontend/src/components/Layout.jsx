@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import useAuthStore from '../store/useAuthStore';
+import ThemeToggle from './ThemeToggle';
 
 /** 四个主 Tab 配置 */
 const TABS = [
@@ -43,12 +44,16 @@ export default function Layout() {
               </NavLink>
             ))}
           </nav>
-          <button
-            onClick={() => navigate(user ? '/profile' : '/login')}
-            className="text-sm text-mute hover:text-cinnabar transition"
-          >
-            {user ? `嗨，${user.nickname || user.username}` : '登录 / 注册'}
-          </button>
+          <div className="flex items-center gap-2">
+            {/* 主题切换：太阳/月亮/跟随系统 */}
+            <ThemeToggle />
+            <button
+              onClick={() => navigate(user ? '/profile' : '/login')}
+              className="text-sm text-mute hover:text-cinnabar transition"
+            >
+              {user ? `嗨，${user.nickname || user.username}` : '登录 / 注册'}
+            </button>
+          </div>
         </div>
       </header>
 

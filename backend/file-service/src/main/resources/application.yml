@@ -1,0 +1,22 @@
+# 文件存储服务 通用配置（默认激活 dev）
+spring:
+  application:
+    name: file-service
+  profiles:
+    active: dev
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  servlet:
+    multipart:
+      # 单文件上限 100MB（视频上限），整个请求上限 110MB（留出表单字段余量）
+      max-file-size: 100MB
+      max-request-size: 110MB
+
+server:
+  port: 8087
+  servlet:
+    encoding:
+      # 强制响应头携带 charset=UTF-8，避免 PowerShell 等客户端中文乱码
+      charset: UTF-8
+      force: true

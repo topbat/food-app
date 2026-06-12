@@ -1,30 +1,36 @@
 /** @type {import('tailwindcss').Config} */
-// 新中式美学色板：宣纸底、朱砂主色、暖橙辅助、黛绿健康、赭石点缀、墨色文字
+// 新中式美学色板：宣纸底、朱砂主色、暖橙辅助、黛绿健康、赭石/金棕点缀、墨色文字
+// 颜色统一引用 index.css 中的 CSS 变量（:root 亮色 / .dark 暗色），
+// 写法 rgb(var(--xx) / <alpha-value>) 以保留 Tailwind 的透明度修饰符能力（如 bg-ink/5）
 export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
+  darkMode: 'class', // 暗黑模式：html 根节点挂 .dark 类
   theme: {
     extend: {
       colors: {
-        paper: '#F7F3EB', // 底色「宣纸」
-        card: '#FFFDF8', // 卡片白
+        paper: 'rgb(var(--c-paper) / <alpha-value>)', // 底色「宣纸」/ 暗色为暖墨黑
+        card: 'rgb(var(--c-card) / <alpha-value>)', // 卡片白 / 暗色为深暖灰
         cinnabar: {
-          DEFAULT: '#B5392F', // 主色「朱砂」
-          dark: '#9C2F26',
-          light: '#C9544A',
+          DEFAULT: 'rgb(var(--c-cinnabar) / <alpha-value>)', // 主色「朱砂」
+          dark: 'rgb(var(--c-cinnabar-deep) / <alpha-value>)',
+          light: 'rgb(var(--c-cinnabar-soft) / <alpha-value>)',
         },
-        warmth: '#D96E48', // 「暖橙」渐变辅助/热量元素
-        jade: '#2F5D50', // 「黛绿」健康/营养元素
-        ochre: '#9A6A4F', // 「赭石」
-        ink: '#2B2B2B', // 文字「墨色」
-        mute: '#8A8378', // 次要文字
+        warmth: 'rgb(var(--c-warmth) / <alpha-value>)', // 「暖橙」渐变辅助/热量元素
+        jade: 'rgb(var(--c-jade) / <alpha-value>)', // 「黛绿」健康/营养元素，暗色转低饱和青玉
+        ochre: 'rgb(var(--c-ochre) / <alpha-value>)', // 「赭石」
+        gold: 'rgb(var(--c-gold) / <alpha-value>)', // 「金棕/琥珀」点缀色
+        ink: 'rgb(var(--c-ink) / <alpha-value>)', // 文字「墨色」/ 暗色为宣纸白
+        mute: 'rgb(var(--c-mute) / <alpha-value>)', // 次要文字
+        scrim: 'rgb(var(--c-scrim) / <alpha-value>)', // 图片角标/弹层遮罩专用：两种主题下都保持暗色
       },
       fontFamily: {
         serif: ['"Noto Serif SC"', '"Songti SC"', 'STSong', 'SimSun', 'serif'],
       },
+      // 阴影走 CSS 变量：暗色下降低透明度 / 以描边替代
       boxShadow: {
-        soft: '0 2px 12px rgba(43, 43, 43, 0.06)',
-        lift: '0 10px 28px rgba(43, 43, 43, 0.12)',
-        seal: '0 2px 8px rgba(181, 57, 47, 0.35)',
+        soft: 'var(--shadow-soft)',
+        lift: 'var(--shadow-lift)',
+        seal: 'var(--shadow-seal)',
       },
       keyframes: {
         fadeUp: {
@@ -37,8 +43,8 @@ export default {
           '100%': { opacity: '1', transform: 'scale(1) rotate(0deg)' },
         },
         pulseRing: {
-          '0%, 100%': { boxShadow: '0 0 0 0 rgba(181, 57, 47, 0.5)' },
-          '50%': { boxShadow: '0 0 0 16px rgba(181, 57, 47, 0)' },
+          '0%, 100%': { boxShadow: '0 0 0 0 rgb(var(--c-cinnabar) / 0.5)' },
+          '50%': { boxShadow: '0 0 0 16px rgb(var(--c-cinnabar) / 0)' },
         },
         flicker: {
           '0%, 100%': { opacity: '1', transform: 'scale(1)' },

@@ -4,10 +4,13 @@ import { getProfile, updateProfile, addTag, deleteTag, getDietDaily, getDietMont
 import { getMyCheckin, getMyBadges } from '../api/social';
 import CalorieRing from '../components/CalorieRing';
 import TagChip from '../components/TagChip';
+import SmartImage from '../components/SmartImage';
+import ThemeToggle from '../components/ThemeToggle';
+import UploadButton from '../components/UploadButton';
 import { PageLoading } from '../components/Loading';
 import useAuthStore from '../store/useAuthStore';
 import { toast } from '../store/useToastStore';
-import { HEALTH_GOALS, MEAL_TYPES, PLACEHOLDER_IMG } from '../utils/constants';
+import { HEALTH_GOALS, MEAL_TYPES } from '../utils/constants';
 
 /** 当前年月 'YYYY-MM' */
 function currentMonth() {
@@ -117,6 +120,10 @@ export default function Profile() {
   if (!token) {
     return (
       <div className="max-w-md mx-auto px-4 pt-16 text-center space-y-5">
+        {/* 移动端主题切换入口（PC 在顶栏） */}
+        <div className="flex justify-end md:hidden">
+          <ThemeToggle />
+        </div>
         <span className="seal-badge w-16 h-16 text-3xl mx-auto animate-pop">食</span>
         <h1 className="font-serif text-2xl font-bold">登录解锁你的美食档案</h1>
         <p className="text-sm text-mute leading-relaxed">
@@ -208,21 +215,39 @@ export default function Profile() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 pt-5 md:pt-8 space-y-5 pb-10">
-      {/* ===== 头部：头像昵称 ===== */}
+      {/* ===== 头部：头像（点击相机角标可本地上传更换）+ 昵称 ===== */}
       <div className="flex items-center gap-4 animate-fade-up">
-        <img
-          src={user.avatarUrl || PLACEHOLDER_IMG}
-          onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMG)}
-          alt=""
-          className="w-16 h-16 rounded-full object-cover bg-ink/5 border-2 border-card shadow-soft"
-        />
+        <div className="relative shrink-0">
+          <SmartImage
+            src={user.avatarUrl}
+            className="w-16 h-16 rounded-full object-cover border-2 border-card shadow-soft"
+          />
+          {/* 头像上传：bizType=avatar，成功后自动保存到档案 */}
+          <UploadButton
+            bizType="avatar"
+            onUploaded={async (data) => {
+              try {
+                await updateProfile({ avatarUrl: data.url });
+                toast.success('头像已更新');
+                loadProfile();
+              } catch (err) {
+                toast.error(err.message);
+              }
+            }}
+            className="absolute -bottom-1 -right-1 min-w-7 h-7 px-1 rounded-full bg-cinnabar text-white text-xs flex items-center justify-center shadow-seal active:scale-95 disabled:opacity-70 whitespace-nowrap"
+          >
+            📷
+          </UploadButton>
+        </div>
         <div className="flex-1 min-w-0">
           <h1 className="font-serif text-xl font-bold truncate">{user.nickname || user.username}</h1>
           <p className="text-xs text-mute mt-0.5">
             连续打卡 <b className="text-cinnabar">{checkinInfo.continuousDays || 0}</b> 天 · 徽章{' '}
-            <b className="text-warmth">{badges.filter((b) => b.obtained).length}</b> 枚
+            <b className="text-gold">{badges.filter((b) => b.obtained).length}</b> 枚
           </p>
         </div>
+        {/* 移动端主题切换入口（PC 在顶栏） */}
+        <ThemeToggle className="md:hidden shrink-0" />
         <button className="btn-ghost px-4 py-2 text-xs shrink-0" onClick={handleLogout}>
           退出登录
         </button>
@@ -464,7 +489,7 @@ export default function Profile() {
                 key={b.id}
                 title={b.badgeDesc}
                 className={`flex flex-col items-center gap-1 rounded-2xl py-3 transition ${
-                  b.obtained ? 'bg-warmth/10' : 'opacity-35 grayscale' // 未获得置灰
+                  b.obtained ? 'bg-gold/10' : 'opacity-35 grayscale' // 已获得金棕点缀，未获得置灰
                 }`}
               >
                 <span className="text-2xl">{b.icon || '🏅'}</span>

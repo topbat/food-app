@@ -60,6 +60,6 @@ export const POST_TYPES = [
 /** 健康目标下拉项 */
 export const HEALTH_GOALS = ['减脂', '增肌', '控糖', '均衡饮食', '低盐低脂'];
 
-/** 占位图（封面加载失败时使用，内联 SVG） */
+/** 占位图（封面加载失败时使用，内联 SVG；背景透明，由容器的 bg-ink/5 提供随主题的底色） */
 export const PLACEHOLDER_IMG =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%23F0EADF'/%3E%3Ctext x='200' y='150' font-size='64' text-anchor='middle' dominant-baseline='middle'%3E%F0%9F%8D%B2%3C/text%3E%3C/svg%3E";
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Ctext x='200' y='150' font-size='64' text-anchor='middle' dominant-baseline='middle'%3E%F0%9F%8D%B2%3C/text%3E%3C/svg%3E";

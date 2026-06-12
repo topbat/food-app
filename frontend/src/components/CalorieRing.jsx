@@ -16,28 +16,26 @@ export default function CalorieRing({
   const c = 2 * Math.PI * r;
   const ratio = Math.max(0, Math.min(1, max > 0 ? value / max : 0));
   const dash = c * ratio;
-  const color = over ? '#B5392F' : '#D96E48';
 
   return (
     <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        {/* 底环 */}
+        {/* 底环：墨色低透明度（颜色随主题 token 变化） */}
         <circle
           cx={size / 2}
           cy={size / 2}
           r={r}
           fill="none"
-          stroke="#2B2B2B"
-          strokeOpacity="0.08"
+          className="stroke-ink/10"
           strokeWidth={strokeWidth}
         />
-        {/* 进度环 */}
+        {/* 进度环：常规暖橙，超标朱砂红 */}
         <circle
           cx={size / 2}
           cy={size / 2}
           r={r}
           fill="none"
-          stroke={color}
+          className={over ? 'stroke-cinnabar' : 'stroke-warmth'}
           strokeWidth={strokeWidth}
           strokeLinecap="round"
           strokeDasharray={`${dash} ${c - dash}`}
