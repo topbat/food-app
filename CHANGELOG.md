@@ -12,6 +12,11 @@
 
 ---
 
+## [2026-06-12] 修复 PowerShell 脚本编码
+
+- 修复：`scripts/deploy.ps1`、`backend/start-dev.ps1` 增加 UTF-8 BOM —— Windows PowerShell 5.1 将无 BOM 的 UTF-8 脚本按 GBK 解析，中文注释会导致 ParserError
+- 影响范围：scripts、backend
+
 ## [2026-06-12] 分支部署规范与 Actions 部署流水线
 
 - 新增：三分支部署规范（`dev`→dev 环境、`master`→uat 环境、`main`→prod 环境，合并流向 dev→master→main），详见 部署规范.md
