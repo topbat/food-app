@@ -1,0 +1,143 @@
+# ============================================================
+# 部署流水线（Deploy Pipeline）
+# 触发方式：
+#   1. 分支推送自动触发：push 到 dev / master / main
+#   2. 脚本触发：gh workflow run deploy.yml --ref <分支> -f environment=<环境>
+#      （仓库内提供封装脚本 scripts/deploy.ps1）
+#   3. GitHub 网页触发：仓库页 → Actions → deploy → Run workflow
+# 分支 → 环境映射：dev → dev、master → uat、main → prod
+# ============================================================
+name: deploy
+
+on:
+  push:
+    branches: [dev, master, main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: '目标环境（auto=按分支自动映射：dev→dev / master→uat / main→prod）'
+        required: true
+        default: auto
+        type: choice
+        options: [auto, dev, uat, prod]
+
+jobs:
+  # ---------- 第一步：解析本次部署的目标环境 ----------
+  resolve-env:
+    name: 解析目标环境
+    runs-on: ubuntu-latest
+    outputs:
+      env_name: ${{ steps.resolve.outputs.env_name }}
+    steps:
+      - id: resolve
+        shell: bash
+        run: |
+          # 手动触发且显式选择环境时优先生效；否则按分支自动映射
+          INPUT_ENV="${{ github.event.inputs.environment || 'auto' }}"
+          if [ "$INPUT_ENV" != "auto" ]; then
+            ENV_NAME="$INPUT_ENV"
+          else
+            case "${GITHUB_REF_NAME}" in
+              dev)    ENV_NAME=dev ;;
+              master) ENV_NAME=uat ;;
+              main)   ENV_NAME=prod ;;
+              *)      ENV_NAME=dev ;;
+            esac
+          fi
+          echo "env_name=$ENV_NAME" >> "$GITHUB_OUTPUT"
+          echo "触发分支=${GITHUB_REF_NAME}，环境入参=${INPUT_ENV} → 目标环境=${ENV_NAME}"
+
+  # ---------- 并行构建：后端 5 个微服务 ----------
+  build-backend:
+    name: 构建后端微服务
+    needs: resolve-env
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 安装 JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Maven 打包（跳过测试，多模块聚合构建）
+        run: mvn -B -DskipTests package
+        working-directory: backend
+      - name: 上传后端构建产物（jar）
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jars-${{ needs.resolve-env.outputs.env_name }}
+          path: backend/*/target/*.jar
+          retention-days: 7
+
+  # ---------- 并行构建：前端 H5/PC ----------
+  build-frontend:
+    name: 构建前端
+    needs: resolve-env
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 安装 Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: 安装依赖
+        run: npm ci
+        working-directory: frontend
+      - name: 生产构建
+        run: npm run build
+        working-directory: frontend
+      - name: 上传前端构建产物（dist）
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist-${{ needs.resolve-env.outputs.env_name }}
+          path: frontend/dist
+          retention-days: 7
+
+  # ---------- 并行校验：Python AI 服务 ----------
+  check-ai-service:
+    name: 校验 AI 服务
+    needs: resolve-env
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 安装 Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: backend/ai-service/requirements.txt
+      - name: 安装依赖
+        run: pip install -r requirements.txt
+        working-directory: backend/ai-service
+      - name: 模块加载自检
+        run: python -c "import main; print('AI 服务模块加载成功')"
+        working-directory: backend/ai-service
+
+  # ---------- 最后：部署 ----------
+  deploy:
+    name: 部署到 ${{ needs.resolve-env.outputs.env_name }} 环境
+    needs: [resolve-env, build-backend, build-frontend, check-ai-service]
+    runs-on: ubuntu-latest
+    steps:
+      - name: 下载全部构建产物
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: 产物清单
+        run: ls -lR artifacts
+      # 真实服务器就绪后，把本步骤替换为 scp/ssh 或容器发布命令，
+      # 服务器地址与密钥通过仓库 Settings → Secrets and variables → Actions 配置
+      - name: 执行部署（当前为模拟发布，接入真实服务器时替换本步骤）
+        run: |
+          ENV_NAME="${{ needs.resolve-env.outputs.env_name }}"
+          echo "=================================================="
+          echo " 开始发布到 [$ENV_NAME] 环境"
+          echo "  - 后端：5 个微服务 jar（user/recipe/kitchen/search/social）"
+          echo "    启动示例：java -jar xxx.jar --spring.profiles.active=$ENV_NAME"
+          echo "  - 前端：frontend/dist 静态资源（发布至 Nginx/CDN）"
+          echo "  - AI 服务：uvicorn main:app（APP_ENV=$ENV_NAME）"
+          echo " 发布完成 ✅（模拟）"
+          echo "=================================================="

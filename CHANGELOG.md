@@ -12,6 +12,14 @@
 
 ---
 
+## [2026-06-12] 分支部署规范与 Actions 部署流水线
+
+- 新增：三分支部署规范（`dev`→dev 环境、`master`→uat 环境、`main`→prod 环境，合并流向 dev→master→main），详见 部署规范.md
+- 新增：GitHub Actions 部署流水线 `.github/workflows/deploy.yml` —— 分支推送自动触发 + `workflow_dispatch` 手动触发（gh CLI 脚本 / GitHub 网页 Actions 页），解析环境→并行构建（后端 Maven / 前端 npm / AI 自检）→模拟发布，产物保留 7 天
+- 新增：部署触发脚本 `scripts/deploy.ps1`（按分支/环境触发，支持 -Watch 实时跟踪）
+- 文档：README 增加部署规范与变更历史链接
+- 影响范围：docs、CI/CD
+
 ## [2026-06-12] 提交规范与文档完善
 
 - 新增：建立变更历史提交规范，新增本 CHANGELOG.md 文件

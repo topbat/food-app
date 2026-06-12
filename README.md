@@ -181,6 +181,7 @@ Invoke-RestMethod http://localhost:8086/api/ai/health                   # AI
 
 ## 九、其他文档
 
+- [部署规范.md](部署规范.md) — 三分支模型（dev/master/main）与 Actions 部署流水线三种触发方式
 - [CHANGELOG.md](CHANGELOG.md) — 变更历史（每次提交必更新）
 - [接口契约.md](接口契约.md) — 全部接口请求/响应定义
 - [项目总体规划.md](项目总体规划.md) — 架构、端口、统一技术约定
